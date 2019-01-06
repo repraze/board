@@ -7,12 +7,21 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "mocha tests/**/*.js"
+    "test": "mocha **/*.t.js"
   },
   "author": "Thomas Dubosc (http://repraze.com)",
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^5.2.0"
-  }
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/repraze/board.git"
+  },
+  "bugs": {
+    "url": "https://github.com/repraze/board/issues"
+  },
+  "homepage": "https://github.com/repraze/board#readme"
 }

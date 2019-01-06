@@ -12,6 +12,7 @@ class Random{
     }
 
     int(min, max){
+        
         return Math.floor(this._rng() * (max - min + 1)) + min;
     }
 
