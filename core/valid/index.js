@@ -2,16 +2,7 @@ const SYMB_CHECK = Symbol('check');
 const SYMB_FUNC = Symbol('func');
 const SYMB_VALIDATOR = Symbol('validator');
 
-const number = {
-    validator : (value)=>(typeof value === 'number'),
-    [SYMB_CHECK] : {
-        integer : (value)=>(value === (value | 0)),
-    },
-    [SYMB_FUNC] : {
-        gt : (v)=>(value)=>(value > v),
-        lt : (v)=>(value)=>(value < v),
-    }
-};
+const number = require('./types/number');
 
 const TYPES = {
     number,
@@ -48,16 +39,16 @@ const valid = new Proxy(function(){}, {
             get : function(validator, key){
                 if(key === SYMB_VALIDATOR){
                     return validator;
-                }else if(key in type[SYMB_CHECK]){
+                }else if(type.prop && key in type.prop){
                     const name = `${key}`;
-                    const test = type[SYMB_CHECK][key];
+                    const test = type.prop[key];
                     test.key = name;
                     validator.tests.push(test);
                     return proxy;
-                }else if(key in type[SYMB_FUNC]){
+                }else if(type.func && key in type.func){
                     return (...args)=>{
                         const name = `${key}(${[...args].join(', ')})`;
-                        const test = type[SYMB_FUNC][key](...args);
+                        const test = type.func[key](...args);
                         test.key = name;
                         validator.tests.push(test);
                         return proxy;
@@ -73,9 +64,3 @@ const valid = new Proxy(function(){}, {
 });
 
 module.exports = valid;
-
-try {
-    valid(5, valid.number.gt(4).gt(5));
-}catch(e){
-    console.log(e.message);
-}
