@@ -1,60 +1,84 @@
-const SYMB_CHECK = Symbol('check');
-const SYMB_FUNC = Symbol('func');
-const SYMB_VALIDATOR = Symbol('validator');
+const symbols = {
+    validator : Symbol('validator')
+};
 
 const number = require('./types/number');
 
-const TYPES = {
+const types = {
     number,
+};
+
+class Validator{
+    constructor(type){
+        this.type = type;
+        this.label = '';
+        this.tests = [];
+    }
+    add(test){
+        this.tests.push(test);
+    }
 }
 
 const valid = new Proxy(function(){}, {
     apply : function(target, thisArg, args){
         const value = args[0];
-        const validator = args[1][SYMB_VALIDATOR];
+        const validator = args[1][symbols.validator];
+
         for(let i = 0; i < validator.tests.length; ++i){
             const test = validator.tests[i];
-            const pass = test(value);
-            if(!pass){
+            if(!test.validator(value)){
                 const type = validator.type;
                 if(i === 0){
                     throw new Error(`Expected \`${value}\` to be of type \`${type}\`, but received type \`${typeof value}\``);
                 }else{
-                    throw new Error(`Expected ${type} \`${value}\` to pass \`${test.key}\``);
+                    const label = type + validator.label;
+                    throw new Error(`Expected ${label} to ${test.message}, got \`${value}\``);
                 }
             }
         }
     },
     get : function(target, key){
-        if(!(key in TYPES)){
-            throw new Error(`invalid type \`${key}\` given`);
+        if(!(key in types)){
+            throw new Error(`Invalid type \`${key}\` given`);
         }
-        const type = TYPES[key];
-        const validator = {
-            type : key,
-            tests : [type.validator]
-        };
+        const type = types[key];
+        const validator = new Validator(key);
 
         const proxy = new Proxy(validator, {
             get : function(validator, key){
-                if(key === SYMB_VALIDATOR){
+                if(key === symbols.validator){
                     return validator;
-                }else if(type.prop && key in type.prop){
-                    const name = `${key}`;
-                    const test = type.prop[key];
-                    test.key = name;
-                    validator.tests.push(test);
-                    return proxy;
-                }else if(type.func && key in type.func){
-                    return (...args)=>{
-                        const name = `${key}(${[...args].join(', ')})`;
-                        const test = type.func[key](...args);
-                        test.key = name;
-                        validator.tests.push(test);
+                }else if(key === "label"){
+                    return (name)=>{
+                        validator.label = ` \`${name}\``;
                         return proxy;
                     };
+                }else if(key === "not"){
+                    const originalAdd = validator.add;
+                    validator.add = (test)=>{
+                        validator.add = originalAdd;
+                        const notTest = {
+                            message : `not ${test.message}`,
+                            validator : (value)=>(!test.validator(value))
+                        };
+                        validator.add(notTest);
+                    };
+                    return proxy;
+                }else if(type.property && key in type.property){
+                    const property = type.property[key];
+                    if(typeof property === "function"){
+                        return (...args)=>{
+                            const test = property(...args);
+                            validator.add(test);
+                            return proxy;
+                        };
+                    }else{
+                        const test = property;
+                        validator.add(test);
+                        return proxy;
+                    }
                 }else{
-                    throw new Error(`invalid check \`${key}\` given`);
+                    throw new Error(`Invalid check \`${key}\` given`);
                 }
             }
         });

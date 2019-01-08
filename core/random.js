@@ -7,17 +7,16 @@ class Random{
         return new Random(Math.random);
     }
 
-    use(rgn){
+    use(rng){
         this._rng = rng;
     }
 
     int(min, max){
-        
         return Math.floor(this._rng() * (max - min + 1)) + min;
     }
 
     float(min, max){
-         return this._rng() * (max - min) + min;
+        return this._rng() * (max - min) + min;
     }
 
     boolean(){
@@ -32,15 +31,15 @@ class Random{
     shuffle(inList){
         // copy to not touch original
         let list = [...inList];
-        let current = list.length-1, pos, item;
+        let current = list.length - 1; let pos; let item;
         while(current){
             // pick random
-            pos = this.int(0, current)
+            pos = this.int(0, current);
             // swap
             item = list[pos];
             list[pos] = list[current];
             list[current] = item;
-            current-=1;
+            current -= 1;
         }
         return list;
     }

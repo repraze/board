@@ -1,9 +1,7 @@
 const valid = require('./core/valid');
 
-try {
-    valid(Infinity, valid.number.int.gt(4).gte(5));
+try{
+    valid(5, valid.number.label('what').integer.not.greaterThan(4));
 }catch(e){
     console.log(e.message);
 }
-
-valid.number.strictlyPositive.safeInteger.lessThen

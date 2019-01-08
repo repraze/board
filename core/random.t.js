@@ -24,8 +24,8 @@ describe('board', ()=>{
             });
             it('should generate only one int on narrow', ()=>{
                 repeat(100, (r)=>{
-                    const n = random.int(r+5, r+5);
-                    expect(n).to.be.equal(r+5);
+                    const n = random.int(r + 5, r + 5);
+                    expect(n).to.be.equal(r + 5);
                 });
             });
             it('should sort min and max', ()=>{
