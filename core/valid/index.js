@@ -31,7 +31,7 @@ const valid = new Proxy(function(){}, {
                 if(i === 0){
                     throw new Error(`Expected \`${value}\` to be of type \`${type}\`, but received type \`${typeof value}\``);
                 }else{
-                    const label = type + validator.label;
+                    const label = validator.label ? `${type} ${validator.label}` : type;
                     throw new Error(`Expected ${label} to ${test.message}, got \`${value}\``);
                 }
             }
@@ -50,7 +50,7 @@ const valid = new Proxy(function(){}, {
                     return validator;
                 }else if(key === "label"){
                     return (name)=>{
-                        validator.label = ` \`${name}\``;
+                        validator.label = `\`${name}\``;
                         return proxy;
                     };
                 }else if(key === "not"){
